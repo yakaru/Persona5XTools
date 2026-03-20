@@ -175,8 +175,7 @@ class RollerWindow(QMainWindow):
                 numCognigems = numCognigems % 10
                 newRolls = newGems // 150
                 newGems = newGems % 150
-                extraCognigems, extraTargetFiveStar, FullPity, FourStarPity = self.DoTargetBannerRolls(
-                    newRolls + 1, FullPity, FourStarPity)
+                extraCognigems, extraTargetFiveStar, FullPity, FourStarPity = self.DoTargetBannerRolls(newRolls + 1, FullPity, FourStarPity)
                 totalCognigems += extraCognigems
                 RollCount += newRolls
                 standardGuaranteeProgress += newRolls
@@ -185,12 +184,14 @@ class RollerWindow(QMainWindow):
                 standardGuarantees += additionalStandards
                 if(numStandardsNeededRemaining>=additionalStandards):
                     numStandardsNeededRemaining -= additionalStandards
-                    numCognigems += newStandards * 30
+                    numCognigems += additionalStandards * 30
+                    totalCognigems += additionalStandards * 30
                 else:
                     numCognigems += numStandardsNeededRemaining  * 30
                     additionalStandards -= numStandardsNeededRemaining
                     numStandardsNeededRemaining = 0
-                    numCognigems += newStandards * 75
+                    numCognigems += additionalStandards * 75
+                    totalCognigems += additionalStandards * 75
                 numCognigems += extraCognigems
                 numTargetFiveStar += extraTargetFiveStar
         self.StatusLabel.setText(
