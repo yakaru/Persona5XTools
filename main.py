@@ -23,7 +23,7 @@ class MainMenuWindow(QMainWindow):
 
         self.theDamageWindow = damagecalcui.DamageCalcWindow()
         self.DamageSelect = QPushButton()
-        self.DamageSelect.setText("Damage Calculator")
+        self.DamageSelect.setText("Damage Calculator (Not Accurate)")
         self.DamageSelect.clicked.connect(self.openDamageWindow)
 
         #self.input = QLineEdit()

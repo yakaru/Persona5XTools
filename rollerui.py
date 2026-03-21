@@ -51,11 +51,6 @@ class RollerWindow(QMainWindow):
 
         self.StatusLabel = QLabel("")
 
-        self.guaranteeCount = 0
-        self.luckyCount = 0
-        self.fourstarcount = 0
-        self.pityFives = 0
-
         totalLayout = QVBoxLayout()
         outerLayout = QHBoxLayout()
         totalLayout.addLayout(outerLayout)
@@ -99,111 +94,12 @@ class RollerWindow(QMainWindow):
     def DoRoll(self):
         numRolls = int(self.numRolls.text())+1
         numStandardsNeededRemaining = int(self.numA6Needed.text())
-        RollCount = 0
-        totalCognigems = 0
-        self.pityFives = 0
-        self.guaranteeCount = 0
-        self.luckyCount = 0
-        self.fourstarcount = 0
         fourStarChance = float(self.chanceOfFourStar.text())
         recycleCognigems = self.recycleCheck.isChecked()
 
-        chanceTargetFiveStars, chanceStandardFiveStars, chanceFourStars, chanceTotalCognigems, chanceSpentCognigems, chanceRollCount, chancePityPulls, chanceGuaranteePulls, chanceLuckyPulls = roller.CalculatePulls(numRolls, numStandardsNeededRemaining, fourStarChance, recycleCognigems)
-        self.StatusLabel.setText(f"Rolled {chanceRollCount} Times on 80, Pitied {chancePityPulls} times, Guaranteed Target {chanceGuaranteePulls} times, Lucky Draw {chanceLuckyPulls} times.\nGot {chanceFourStars} Four Stars\nSpent {chanceSpentCognigems} out of {chanceTotalCognigems} purple cognigems")
+        chanceTargetFiveStars, chanceStandardFiveStars, chanceFourStars, chanceTotalCognigems, chanceSpentCognigems, chanceRollCount, chancePityPulls, chanceGuaranteePulls, chanceLuckyPulls, targetFiveStars, targetStandardFiveStars, targetFourstars, targetTotalCognigems, targetSpentCognigems, targetRollcount, targetPityPulls = roller.CalculatePulls(numRolls, numStandardsNeededRemaining, fourStarChance, recycleCognigems)
+        self.StatusLabel.setText(f"Rolled {chanceRollCount} Times on 80, Pitied {chancePityPulls} times, Guaranteed Target {chanceGuaranteePulls} times, Lucky Draw {chanceLuckyPulls} times.\nGot {chanceFourStars} Four Stars\nSpent {chanceSpentCognigems} out of {chanceTotalCognigems} purple cognigems\nRolled {targetRollcount} Times on 110, Got Target {targetFiveStars} times, pitied {targetPityPulls} times, plus {targetStandardFiveStars} standards.\nGot {targetFourstars} Four Stars\nSpent {targetSpentCognigems} out of {targetTotalCognigems} purple cognigems")
         self.EightyBannerNumTargetRolledResult.setText(f"{chanceTargetFiveStars}")
         self.EightyBannerNumStandardRolledResult.setText(f"{chanceStandardFiveStars}")
-
-
-        # TargetBanner
-        # Reset trackers:
-        numStandardsNeededRemaining = int(self.numA6Needed.text())
-        RollCount = 0
-        self.pityFives = 0
-        self.fourstarcount = 0
-        spentCogniGems = 0
-        totalCognigems = 0
-        standardGuarantees = 0
-        standardGuaranteeProgress = 0
-
-        numCognigems, numTargetFiveStar, FullPity, FourStarPity = self.DoTargetBannerRolls(numRolls, 0, 0)
-        RollCount += numRolls-1
-        standardGuaranteeProgress += RollCount
-        newStandards = (standardGuaranteeProgress//165)
-        standardGuaranteeProgress = standardGuaranteeProgress % 165
-
-        if(numStandardsNeededRemaining>=newStandards):
-            numStandardsNeededRemaining -= newStandards
-            numCognigems += newStandards * 30
-        else:
-            numCognigems += numStandardsNeededRemaining * 30
-            newStandards -= numStandardsNeededRemaining
-            numStandardsNeededRemaining = 0
-            numCognigems += newStandards * 75
-        standardGuarantees += newStandards
-
-        totalCognigems += numCognigems
-
-        if(self.recycleCheck.isChecked()):
-            newGems = 0
-            while (numCognigems >= 10):
-                newGemInstances = numCognigems // 10
-                spentCogniGems += newGemInstances * 10
-                newGems = newGems + newGemInstances * 100
-                numCognigems = numCognigems % 10
-                newRolls = newGems // 150
-                newGems = newGems % 150
-                extraCognigems, extraTargetFiveStar, FullPity, FourStarPity = self.DoTargetBannerRolls(newRolls + 1, FullPity, FourStarPity)
-                totalCognigems += extraCognigems
-                RollCount += newRolls
-                standardGuaranteeProgress += newRolls
-                additionalStandards = (standardGuaranteeProgress//165)
-                standardGuaranteeProgress = standardGuaranteeProgress % 165
-                standardGuarantees += additionalStandards
-                if(numStandardsNeededRemaining>=additionalStandards):
-                    numStandardsNeededRemaining -= additionalStandards
-                    numCognigems += additionalStandards * 30
-                    totalCognigems += additionalStandards * 30
-                else:
-                    numCognigems += numStandardsNeededRemaining  * 30
-                    additionalStandards -= numStandardsNeededRemaining
-                    numStandardsNeededRemaining = 0
-                    numCognigems += additionalStandards * 75
-                    totalCognigems += additionalStandards * 75
-                numCognigems += extraCognigems
-                numTargetFiveStar += extraTargetFiveStar
-        self.StatusLabel.setText(
-            f"{self.StatusLabel.text()}\nRolled {RollCount} Times on 110, Got Target {numTargetFiveStar} times, plus {standardGuarantees} standards.\nGot {self.fourstarcount} Four Stars\nSpent {spentCogniGems} out of {totalCognigems} purple cognigems")
-        self.OneTenBannerNumTargetRolledResult.setText(f"{numTargetFiveStar}")
-        self.OneTenBannerNumStandardRolledResult.setText(f"{standardGuarantees}")
-
-    def DoTargetBannerRolls(self, numRolls, FullPity, FourStarPity):
-        # do 110 banner
-        TARGETRAWCHANCE = 0.00406
-        TARGETFOURSTARCHANCE = TARGETRAWCHANCE + float(self.chanceOfFourStar.text())
-        finishedRolls = 0
-        targetCounter = 0
-        numCognigems = 0
-        lastFourStar = 0
-        numTargetFiveStar = 0
-        guarantee = False
-
-        for x in range(1, numRolls):
-            FullPity += 1
-            FourStarPity += 1
-            roll = random()
-            if (roll < TARGETRAWCHANCE or FullPity == 110):
-                if (FullPity == 110):
-                    self.pityFives += 1
-                FullPity = 0
-                self.guaranteeCount += 1
-                numTargetFiveStar += 1
-                targetCounter += 1
-                if (targetCounter > 1):  # not first pull
-                    numCognigems += 30
-                    if (targetCounter == 7):
-                        targetCounter = 0
-            elif (roll < TARGETFOURSTARCHANCE or FourStarPity >= 10):
-                numCognigems += 15
-                FourStarPity = 0
-                self.fourstarcount += 1
-        return numCognigems, numTargetFiveStar, FullPity, FourStarPity
+        self.OneTenBannerNumTargetRolledResult.setText(f"{targetFiveStars}")
+        self.OneTenBannerNumStandardRolledResult.setText(f"{targetStandardFiveStars}")
