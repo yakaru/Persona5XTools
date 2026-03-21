@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QVBoxL
 from PyQt6.QtGui import QIntValidator, QDoubleValidator
 
 import sys
-import roller
+import rollerui
 import damagecalcui
 
 
@@ -16,7 +16,7 @@ class MainMenuWindow(QMainWindow):
 
         self.setWindowTitle("P5X Tools")
 
-        self.theRollerWindow = roller.RollerWindow()
+        self.theRollerWindow = rollerui.RollerWindow()
         self.RollerSelect = QPushButton()
         self.RollerSelect.setText("Roll Simulator")
         self.RollerSelect.clicked.connect(self.openRollerWindow)
