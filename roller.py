@@ -1,0 +1,274 @@
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QVBoxLayout, QWidget, QPushButton, \
+    QHBoxLayout, QVBoxLayout, QCheckBox
+from PyQt6.QtGui import QIntValidator, QDoubleValidator
+
+class RollerWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Rolling Simulator")
+        self.numRollslabel = QLabel("Number of Rolls")
+
+        self.numRolls = QLineEdit()
+        self.numRollsValidator = QIntValidator()
+        self.numRollsValidator.setBottom(0)
+        self.numRollsValidator.setTop(1000000000)
+        self.numRolls.setValidator(self.numRollsValidator)
+        self.numRolls.setText("1000")
+
+        self.numA6NeededLabel = QLabel("Number of Standard Awareness Needed to A6")
+        self.numA6Needed = QLineEdit()
+        self.numA6Needed.setValidator(QIntValidator())
+        self.numA6Needed.setText("0")
+
+        self.chanceOfFourStarLabel = QLabel("Chance of Four Star")
+        self.FourStarChanceValidator = QDoubleValidator()
+        self.FourStarChanceValidator.setBottom(0.0)
+        self.FourStarChanceValidator.setTop(0.5)
+        self.chanceOfFourStar = QLineEdit()
+        self.chanceOfFourStar.setValidator(self.FourStarChanceValidator)
+        self.chanceOfFourStar.setText("0.062")
+
+        self.recycleCheck = QCheckBox("Recycle Cognigems?")
+
+        self.RollButton = QPushButton()
+        self.RollButton.setText("ROLL!")
+        self.RollButton.clicked.connect(self.DoRoll)
+
+        self.EightyBannerLabel = QLabel("80 Banner", alignment=Qt.AlignmentFlag.AlignCenter)
+        self.EightyBannerNumTargetRolledLabel = QLabel("Number of Target Characters Rolled")
+        self.EightyBannerNumTargetRolledResult = QLabel("N/A",alignment=Qt.AlignmentFlag.AlignRight)
+        self.EightyBannerNumStandardRolledLabel = QLabel("Number of Standard Characters Rolled")
+        self.EightyBannerNumStandardRolledResult = QLabel("N/A",alignment=Qt.AlignmentFlag.AlignRight)
+        self.OneTenBannerLabel = QLabel("110 Banner",alignment=Qt.AlignmentFlag.AlignCenter)
+        self.OneTenBannerNumTargetRolledLabel = QLabel("Number of Target Characters Rolled")
+        self.OneTenBannerNumTargetRolledResult = QLabel("N/A",alignment=Qt.AlignmentFlag.AlignRight)
+        self.OneTenBannerNumStandardRolledLabel = QLabel("Number of Standard Characters Rolled")
+        self.OneTenBannerNumStandardRolledResult = QLabel("N/A",alignment=Qt.AlignmentFlag.AlignRight)
+
+        self.StatusLabel = QLabel("")
+
+        self.guaranteeCount = 0
+        self.luckyCount = 0
+        self.fourstarcount = 0
+        self.pityFives = 0
+
+        totalLayout = QVBoxLayout()
+        outerLayout = QHBoxLayout()
+        totalLayout.addLayout(outerLayout)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0,0,50,0)
+        layout.addWidget(self.numRollslabel)
+        layout.addWidget(self.numRolls)
+        layout.addWidget(self.numA6NeededLabel)
+        layout.addWidget(self.numA6Needed)
+        layout.addWidget(self.chanceOfFourStarLabel)
+        layout.addWidget(self.chanceOfFourStar)
+        layout.addWidget(self.recycleCheck)
+        layout.addWidget(self.RollButton)
+
+        resultsLayout = QVBoxLayout()
+        resultsLayout.addWidget(self.EightyBannerLabel)
+        resultsLayout.addWidget(self.EightyBannerNumTargetRolledLabel)
+        resultsLayout.addWidget(self.EightyBannerNumTargetRolledResult)
+        resultsLayout.addWidget(self.EightyBannerNumStandardRolledLabel)
+        resultsLayout.addWidget(self.EightyBannerNumStandardRolledResult)
+        resultsLayout.addWidget(self.OneTenBannerLabel)
+        resultsLayout.addWidget(self.OneTenBannerNumTargetRolledLabel)
+        resultsLayout.addWidget(self.OneTenBannerNumTargetRolledResult)
+        resultsLayout.addWidget(self.OneTenBannerNumStandardRolledLabel)
+        resultsLayout.addWidget(self.OneTenBannerNumStandardRolledResult)
+
+
+        outerLayout.addLayout(layout)
+        outerLayout.addLayout(resultsLayout)
+
+        statusLayout = QHBoxLayout()
+        statusLayout.addWidget(self.StatusLabel)
+        totalLayout.addLayout(statusLayout)
+
+
+        container = QWidget()
+        container.setLayout(totalLayout)
+
+        self.setCentralWidget(container)
+
+    def DoRoll(self):
+        numRolls = int(self.numRolls.text())+1
+        numStandardsNeededRemaining = int(self.numA6Needed.text())
+        RollCount = 0
+        totalCognigems = 0
+        self.pityFives = 0
+        self.guaranteeCount = 0
+        self.luckyCount = 0
+        self.fourstarcount = 0
+        # ChanceBanner
+        numCognigems, numTargetFiveStar, numStandardFiveStar, FullPity, FourStarPity = self.DoChanceBannerRolls(numRolls, numStandardsNeededRemaining, 0, 0)
+        totalCognigems += numCognigems
+        RollCount += numRolls-1
+        numChanceStandardsNeededRemaining = numStandardsNeededRemaining - numStandardFiveStar
+        # are we recycling?
+        spentCogniGems = 0
+        if(self.recycleCheck.isChecked()):
+            newGems = 0
+            while(numCognigems>=10):
+                newGemInstances = numCognigems//10
+                spentCogniGems += newGemInstances*10
+                newGems = newGems + newGemInstances * 100
+                numCognigems = numCognigems%10
+                newRolls = newGems//150
+                newGems = newGems % 150
+                extraCognigems, extraTargetFiveStar, extraStandardFiveStar, FullPity, FourStarPity = self.DoChanceBannerRolls(newRolls+1, numChanceStandardsNeededRemaining, FullPity, FourStarPity)
+                totalCognigems += extraCognigems
+                RollCount += newRolls
+                numChanceStandardsNeededRemaining -= extraStandardFiveStar
+                numCognigems += extraCognigems
+                numTargetFiveStar += extraTargetFiveStar
+                numStandardFiveStar += extraStandardFiveStar
+
+        self.StatusLabel.setText(f"Rolled {RollCount} Times on 80, Pitied {self.pityFives} times, Guaranteed Target {self.guaranteeCount} times, Lucky Draw {self.luckyCount} times.\nGot {self.fourstarcount} Four Stars\nSpent {spentCogniGems} out of {totalCognigems} purple cognigems")
+        self.EightyBannerNumTargetRolledResult.setText(f"{numTargetFiveStar}")
+        self.EightyBannerNumStandardRolledResult.setText(f"{numStandardFiveStar}")
+
+
+        # TargetBanner
+        # Reset trackers:
+        numStandardsNeededRemaining = int(self.numA6Needed.text())
+        RollCount = 0
+        self.pityFives = 0
+        self.fourstarcount = 0
+        spentCogniGems = 0
+        totalCognigems = 0
+        standardGuarantees = 0
+        standardGuaranteeProgress = 0
+
+        numCognigems, numTargetFiveStar, FullPity, FourStarPity = self.DoTargetBannerRolls(numRolls, 0, 0)
+        RollCount += numRolls-1
+        standardGuaranteeProgress += RollCount
+        newStandards = (standardGuaranteeProgress//165)
+        standardGuaranteeProgress = standardGuaranteeProgress % 165
+
+        if(numStandardsNeededRemaining>=newStandards):
+            numStandardsNeededRemaining -= newStandards
+            numCognigems += newStandards * 30
+        else:
+            numCognigems += numStandardsNeededRemaining * 30
+            newStandards -= numStandardsNeededRemaining
+            numStandardsNeededRemaining = 0
+            numCognigems += newStandards * 75
+        standardGuarantees += newStandards
+
+        totalCognigems += numCognigems
+
+        if(self.recycleCheck.isChecked()):
+            newGems = 0
+            while (numCognigems >= 10):
+                newGemInstances = numCognigems // 10
+                spentCogniGems += newGemInstances * 10
+                newGems = newGems + newGemInstances * 100
+                numCognigems = numCognigems % 10
+                newRolls = newGems // 150
+                newGems = newGems % 150
+                extraCognigems, extraTargetFiveStar, FullPity, FourStarPity = self.DoTargetBannerRolls(newRolls + 1, FullPity, FourStarPity)
+                totalCognigems += extraCognigems
+                RollCount += newRolls
+                standardGuaranteeProgress += newRolls
+                additionalStandards = (standardGuaranteeProgress//165)
+                standardGuaranteeProgress = standardGuaranteeProgress % 165
+                standardGuarantees += additionalStandards
+                if(numStandardsNeededRemaining>=additionalStandards):
+                    numStandardsNeededRemaining -= additionalStandards
+                    numCognigems += additionalStandards * 30
+                    totalCognigems += additionalStandards * 30
+                else:
+                    numCognigems += numStandardsNeededRemaining  * 30
+                    additionalStandards -= numStandardsNeededRemaining
+                    numStandardsNeededRemaining = 0
+                    numCognigems += additionalStandards * 75
+                    totalCognigems += additionalStandards * 75
+                numCognigems += extraCognigems
+                numTargetFiveStar += extraTargetFiveStar
+        self.StatusLabel.setText(
+            f"{self.StatusLabel.text()}\nRolled {RollCount} Times on 110, Got Target {numTargetFiveStar} times, plus {standardGuarantees} standards.\nGot {self.fourstarcount} Four Stars\nSpent {spentCogniGems} out of {totalCognigems} purple cognigems")
+        self.OneTenBannerNumTargetRolledResult.setText(f"{numTargetFiveStar}")
+        self.OneTenBannerNumStandardRolledResult.setText(f"{standardGuarantees}")
+
+    def DoChanceBannerRolls(self, numRolls, numStandardsNeededRemaining, FullPity, FourStarPity):
+        # do 80 banner
+        TARGETRAWCHANCE = 0.008
+        TARGETFOURSTARCHANCE = TARGETRAWCHANCE + float(self.chanceOfFourStar.text())
+        finishedRolls = 0
+        targetCounter = 0
+        numCognigems = 0
+        lastFourStar = 0
+        numTargetFiveStar = 0
+        numStandardFiveStar = 0
+        guarantee = False
+
+        for x in range(1,numRolls):
+            FullPity+=1;
+            FourStarPity += 1
+            roll = random()
+            if(roll < TARGETRAWCHANCE or FullPity == 80):
+                if(FullPity == 80):
+                    self.pityFives += 1
+                FullPity = 0
+                gotFiveStar = random()
+                if(gotFiveStar > .5 or guarantee):
+                    if(guarantee):
+                        self.guaranteeCount+=1
+                    else:
+                        self.luckyCount+=1
+                    guarantee = False
+                    numTargetFiveStar += 1
+                    targetCounter += 1
+                    if(targetCounter > 1): # not first pull
+                        numCognigems += 30
+                        if(targetCounter == 7):
+                            targetCounter = 0;
+                else:
+                    guarantee = True
+                    numStandardFiveStar += 1
+                    if(numStandardsNeededRemaining >= 0):
+                        numCognigems += 75
+                    else:
+                        numCognigems += 30
+                        numStandardsNeededRemaining -= 1
+            elif(roll < TARGETFOURSTARCHANCE or FourStarPity >= 10):
+                    numCognigems += 15
+                    FourStarPity = 0
+                    self.fourstarcount += 1
+        return numCognigems, numTargetFiveStar, numStandardFiveStar, FullPity, FourStarPity
+
+    def DoTargetBannerRolls(self, numRolls, FullPity, FourStarPity):
+        # do 110 banner
+        TARGETRAWCHANCE = 0.00406
+        TARGETFOURSTARCHANCE = TARGETRAWCHANCE + float(self.chanceOfFourStar.text())
+        finishedRolls = 0
+        targetCounter = 0
+        numCognigems = 0
+        lastFourStar = 0
+        numTargetFiveStar = 0
+        guarantee = False
+
+        for x in range(1, numRolls):
+            FullPity += 1;
+            FourStarPity += 1
+            roll = random()
+            if (roll < TARGETRAWCHANCE or FullPity == 110):
+                if (FullPity == 110):
+                    self.pityFives += 1
+                FullPity = 0
+                self.guaranteeCount += 1
+                numTargetFiveStar += 1
+                targetCounter += 1
+                if (targetCounter > 1):  # not first pull
+                    numCognigems += 30
+                    if (targetCounter == 7):
+                        targetCounter = 0;
+            elif (roll < TARGETFOURSTARCHANCE or FourStarPity >= 10):
+                numCognigems += 15
+                FourStarPity = 0
+                self.fourstarcount += 1
+        return numCognigems, numTargetFiveStar, FullPity, FourStarPity
