@@ -1,5 +1,5 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QVBoxLayout, QWidget, QPushButton, \
+from PyQt6.QtWidgets import QMainWindow, QLabel, QLineEdit, QWidget, QPushButton, \
     QHBoxLayout, QVBoxLayout, QCheckBox, QRadioButton, QButtonGroup
 from PyQt6.QtGui import QIntValidator, QDoubleValidator
 import damagecalc
