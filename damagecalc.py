@@ -27,7 +27,7 @@ def doDamageCalculation(baseAttack, damageMult, elementMult, increasedDamage, de
     criticalChance = max(1.0, critChanceRaw)
     if (hasA6WindVast):
         criticalMult += min(0.0, criticalChance - 1.0) * 2
-
+    critMult = max(1.0, criticalMult-1.0)
     critDamage = criticalChance * criticalMult
 
     lookup_table = {WeaknessLevel.WEAK_RESIST: 0.5, WeaknessLevel.WEAK_NORMAL: 1.0, WeaknessLevel.WEAK_WEAK: 1.2, WeaknessLevel.WEAK_NAVIWEAK: 1.45}

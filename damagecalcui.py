@@ -102,6 +102,27 @@ class DamageCalcWindow(QMainWindow):
         characterBaseValueLayout.addLayout(characterWeaponValueLayout)
         characterLayout.addLayout(characterBaseValueLayout)
 
+        self.CharacterAttackMultLabel = QLabel("Attack%+")
+        self.CharacterAttackMultData = QLineEdit()
+        self.CharacterAttackMultData.setValidator(self.genericUncappedPercentValidator)
+        self.CharacterAttackMultData.setText("0.0")
+
+        self.CharacterAttackFlatLabel = QLabel("Attack")
+        self.CharacterAttackFlatData = QLineEdit()
+        self.CharacterAttackFlatData.setValidator(self.genericIntValidator)
+        self.CharacterAttackFlatData.setText("0")
+
+        characterAttackStatsLayout = QVBoxLayout()
+        characterAttackPercLayout = QHBoxLayout()
+        characterAttackPercLayout.addWidget(self.CharacterAttackMultLabel)
+        characterAttackPercLayout.addWidget(self.CharacterAttackMultData)
+        characterAttackFlatLayout = QHBoxLayout()
+        characterAttackFlatLayout.addWidget(self.CharacterAttackFlatLabel)
+        characterAttackFlatLayout.addWidget(self.CharacterAttackFlatData)
+        characterAttackStatsLayout.addLayout(characterAttackPercLayout)
+        characterAttackStatsLayout.addLayout(characterAttackFlatLayout)
+        characterLayout.addLayout(characterAttackStatsLayout)
+
         self.characterTotalAttackLabel = QLabel("Total Attack (Ignores above, this is temp)")
         self.characterTotalAttackData = QLineEdit()
         self.characterTotalAttackData.setValidator(self.genericIntValidator)

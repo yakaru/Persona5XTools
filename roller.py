@@ -21,7 +21,7 @@ def CalculateChancePulls(numPulls, numStandardAwarenessRemaining, fourStarChance
             numCognigems = numCognigems % 10
             newRolls = newGems // 150
             newGems = newGems % 150
-            extraCognigems, extraTargetFiveStar, extraStandardFiveStar, extraFourStars, extraPityPulls, extraGuranteePulls, extraLuckyPulls, fullPity, fourStarPity = CalculateChancePulls(newRolls + 1, numStandardAwarenessRemaining, fourStarChance, recycleCognigems)
+            extraCognigems, extraTargetFiveStar, extraStandardFiveStar, extraFourStars, extraPityPulls, extraGuranteePulls, extraLuckyPulls, fullPity, fourStarPity = CalculateChancePullsInternal(newRolls + 1, numStandardAwarenessRemaining, fourStarChance, fullPity, fourStarPity)
             numFourStars += extraFourStars
             numPityPulls += extraPityPulls
             numGuaranteePulls += extraGuranteePulls

@@ -7,6 +7,7 @@ from PyQt6.QtGui import QIntValidator, QDoubleValidator
 
 import sys
 import rollerui
+import itemrollerui
 import damagecalcui
 
 
@@ -18,8 +19,13 @@ class MainMenuWindow(QMainWindow):
 
         self.theRollerWindow = rollerui.RollerWindow()
         self.RollerSelect = QPushButton()
-        self.RollerSelect.setText("Roll Simulator")
+        self.RollerSelect.setText("Character Roll Simulator")
         self.RollerSelect.clicked.connect(self.openRollerWindow)
+
+        self.theRollerItemWindow = itemrollerui.ItemRollerWindow()
+        self.RollerItemSelect = QPushButton()
+        self.RollerItemSelect.setText("Weapon Roll Simulator")
+        self.RollerItemSelect.clicked.connect(self.openItemRollerWindow)
 
         self.theDamageWindow = damagecalcui.DamageCalcWindow()
         self.DamageSelect = QPushButton()
@@ -31,6 +37,7 @@ class MainMenuWindow(QMainWindow):
 
         layout = QVBoxLayout()
         layout.addWidget(self.RollerSelect)
+        layout.addWidget(self.RollerItemSelect)
         layout.addWidget(self.DamageSelect)
         #layout.addWidget(self.label)
 
@@ -45,6 +52,9 @@ class MainMenuWindow(QMainWindow):
 
     def openDamageWindow(self):
         self.theDamageWindow.show()
+
+    def openItemRollerWindow(self):
+        self.theRollerItemWindow.show()
 
 
 app = QApplication(sys.argv)
